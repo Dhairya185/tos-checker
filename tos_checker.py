@@ -1,9 +1,10 @@
 import os
 import json
 import typing
+import uvicorn
 import google.generativeai as genai
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -38,12 +39,21 @@ class AnalysisResponse(BaseModel):
     trust_score: int
     gotchas: typing.List[str]
 
+    # SAFETY PATCH , before it was giving the string not possible error ,  now the patch made it so it takes all the value togethee rather than just accepting each string onebyone
+
+    @validator('summary', pre=True)
+    def parse_summary(cls, v):
+        if isinstance(v, list):
+            return " ".join(v)
+        return v
+
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_agreement(request: AgreementRequest):
     if not request.text or len(request.text) < 10:
         raise HTTPException(status_code=400, detail="Text is too short to analyze.")
 
-    model = genai.GenerativeModel('gemini-pro-latest')
+    
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = f"""
     Role: You are an expert consumer rights lawyer.
@@ -53,7 +63,7 @@ async def analyze_agreement(request: AgreementRequest):
     Return a valid JSON object. Do not include markdown formatting (like ```json). 
     The JSON must strictly follow this structure:
     {{
-        "summary": "A concise, bullet-pointed summary of what the user is actually agreeing to, in simple English.",
+        "summary": "A concise paragraph summarizing what the user is agreeing to.",
         "trust_score": (integer between 0-100, where 100 is perfectly safe and 0 is predatory),
         "gotchas": ["list of strings", "each string is a specific unfair or dangerous clause found", "e.g. 'Class Action Waiver'"]
     }}
@@ -81,8 +91,13 @@ async def analyze_agreement(request: AgreementRequest):
 
         data = json.loads(cleaned_text)
 
+        
+        summary_val = data.get("summary", "No summary provided.")
+        if isinstance(summary_val, list):
+            summary_val = " ".join(summary_val)
+
         return AnalysisResponse(
-            summary=data.get("summary", "No summary provided."),
+            summary=summary_val,
             trust_score=data.get("trust_score", 50),
             gotchas=data.get("gotchas", [])
         )
@@ -92,3 +107,6 @@ async def analyze_agreement(request: AgreementRequest):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run("tos_checker:app", host="127.0.0.1", port=8000, reload=True)

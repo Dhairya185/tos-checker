@@ -4,7 +4,7 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
             <nav className="landing-nav">
                 <div className="landing-logo">TOS.AI</div>
                 <div className="landing-links">
-                    <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); }} className="active">Home</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="active">Home</a>
                     <a href="#about">About</a>
                     <a href="#how-it-works">How it Works</a>
                 </div>
@@ -58,8 +58,8 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
                     <div className="accuracy-card">
                         <div className="accuracy-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                                <path d="m9 12 2 2 4-4"/>
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="m9 12 2 2 4-4" />
                             </svg>
                         </div>
                         <h4>99.8% Accuracy</h4>
@@ -73,7 +73,7 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
                     <h2>Why TOS Analysis <span className="border-bottom-primary">Matters</span></h2>
                     <p className="why-quote">"The average user spends less than 6 seconds reading terms that govern their entire digital identity."</p>
                 </div>
-                
+
                 <div className="cards-grid">
                     <div className="feature-card">
                         <div className="card-icon text-primary">

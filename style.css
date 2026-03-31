@@ -7,13 +7,13 @@
     --primary: #FF6B00;
     --secondary: #856034;
     --tertiary: #049EFF;
-    
+
     --text-main: #ffffff;
     --text-muted: #94a3b8;
-    
+
     --danger: #ef4444;
     --safe: #10b981;
-    
+
     --hero-backdrop: #1a1612;
     --toggle-bg: #2a2a2a;
 
@@ -49,7 +49,8 @@ a {
     transition: 0.2s;
 }
 
-a:hover, .text-primary {
+a:hover,
+.text-primary {
     color: var(--primary);
 }
 
@@ -104,7 +105,7 @@ button {
     justify-content: space-between;
     align-items: center;
     padding: 24px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .landing-logo {
@@ -116,6 +117,8 @@ button {
 .landing-links {
     display: flex;
     gap: 32px;
+    margin-right: auto;
+    margin-left: 100px;
 }
 
 .landing-links a {
@@ -139,8 +142,45 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 80px 0;
+    padding: 80px 8%;
     gap: 40px;
+    /* Break out of wrapper to go edge-to-edge */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    /* Glassmorphism */
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    /* Soft fade at the bottom */
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: 5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 107, 0, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+body.light-theme .hero-section {
+    background: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04);
 }
 
 .hero-content {
@@ -213,7 +253,7 @@ button {
     filter: grayscale(100%) contrast(1.1);
     position: relative;
     z-index: 1;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
     border-radius: 2px;
 }
 
@@ -225,7 +265,7 @@ button {
     padding: 32px 32px 32px 24px;
     border-radius: 2px;
     width: 320px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     border-left: 4px solid var(--primary);
     z-index: 2;
 }
@@ -280,12 +320,9 @@ button {
     gap: 24px;
 }
 
+/* Base container for glow cards */
 .feature-card {
-    background: var(--panel-bg);
-    padding: 32px;
-    border-radius: 4px;
     position: relative;
-    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .card-icon {
@@ -325,10 +362,12 @@ button {
 }
 
 .steps-content h2 {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 800;
-    line-height: 1.1;
+    line-height: 1.05;
     margin-bottom: 24px;
+    letter-spacing: -2px;
+    max-width: 480px;
 }
 
 .steps-content p {
@@ -339,11 +378,34 @@ button {
 }
 
 .abstract-graphic {
-    width: 300px;
-    height: 150px;
-    background: linear-gradient(135deg, var(--panel-bg) 0%, var(--primary) 100%);
-    opacity: 0.2;
-    clip-path: polygon(0 0, 100% 20%, 100% 100%, 0 80%);
+    width: 100%;
+    max-width: 480px;
+    height: 300px;
+    margin-top: 50px;
+    position: relative;
+    background: linear-gradient(135deg, #e5e5e5 0%, #c4c4c4 50%, #8a8a8a 100%);
+    clip-path: polygon(0% 50%, 30% 0%, 100% 20%, 100% 100%, 60% 80%, 20% 95%);
+    border-radius: 4px;
+}
+
+body.light-theme .abstract-graphic {
+    background: linear-gradient(135deg, #f0f0f0 0%, #d8d8d8 50%, #9e9e9e 100%);
+}
+
+.abstract-graphic::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(75deg, rgba(255,255,255,0.8) 0%, transparent 40%);
+    clip-path: polygon(0% 50%, 40% 20%, 55% 100%);
+}
+
+.abstract-graphic::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(-60deg, rgba(0,0,0,0.3) 0%, transparent 45%);
+    clip-path: polygon(100% 20%, 100% 100%, 30% 60%);
 }
 
 .steps-list {
@@ -355,25 +417,47 @@ button {
 
 .step-item {
     display: flex;
-    gap: 24px;
+    gap: 32px;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+/* Create the 'wrapping curve' effect around the graphic */
+.step-item:nth-child(1) {
+    transform: translateX(0);
+}
+
+.step-item:nth-child(2) {
+    transform: translateX(80px);
+}
+
+.step-item:nth-child(3) {
+    transform: translateX(30px);
 }
 
 .step-number {
-    font-size: 3rem;
+    font-size: 5.5rem;
     font-weight: 800;
     color: var(--secondary);
-    line-height: 1;
-    opacity: 0.5;
+    line-height: 0.75;
+    opacity: 0.25;
+    margin-top: 6px;
+    letter-spacing: -2px;
 }
 
 .step-text h3 {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .step-text p {
     color: var(--text-muted);
     font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 /* CTA Section */
@@ -382,23 +466,82 @@ button {
 }
 
 .cta-box {
-    background: var(--panel-bg);
-    padding: 80px;
+    background: #ffffff;
+    padding: 100px 40px;
     text-align: center;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    color: #121212;
+}
+
+.cta-box > * {
+    position: relative;
+    z-index: 1;
 }
 
 .cta-box h2 {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 800;
-    margin-bottom: 16px;
-    line-height: 1.1;
+    margin-bottom: 24px;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    color: #121212;
 }
 
 .cta-box p {
-    color: var(--text-muted);
-    margin-bottom: 32px;
+    color: #666666;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+.cta-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.03) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.cta-box button {
+    background: var(--primary);
+    color: #121212;
+    padding: 18px 48px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cta-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 0, 0.25);
+}
+
+body.light-theme .cta-box {
+    background: #18181b;
+    color: #ffffff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 24px;
+}
+
+body.light-theme .cta-box h2 {
+    color: #ffffff;
+}
+
+body.light-theme .cta-box p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+body.light-theme .cta-box::before {
+    background: radial-gradient(circle, rgba(255, 107, 0, 0.1) 0%, transparent 70%);
 }
 
 /* Footer */
@@ -407,7 +550,7 @@ button {
     justify-content: space-between;
     align-items: center;
     padding: 40px 0;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-muted);
     font-size: 0.85rem;
 }
@@ -492,7 +635,7 @@ button {
     width: 100%;
     height: 300px;
     background: var(--panel-bg);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     color: white;
     padding: 24px;
@@ -569,7 +712,7 @@ button {
     gap: 60px;
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .meta-label {
@@ -791,4 +934,182 @@ button {
 .pro-tip p {
     color: var(--text-muted);
     font-size: 0.8rem;
+}
+
+/* ==================
+   BORDER GLOW CARDS
+   ================== */
+.border-glow-card {
+  --edge-proximity: 0;
+  --cursor-angle: 45deg;
+  --edge-sensitivity: 30;
+  --color-sensitivity: calc(var(--edge-sensitivity) + 20);
+  --border-radius: 4px;
+  --glow-padding: 40px;
+  --cone-spread: 25;
+
+  /* Force gradients to orange */
+  --gradient-one: radial-gradient(at 80% 55%, hsla(25, 100%, 60%, 1) 0px, transparent 50%);
+  --gradient-two: radial-gradient(at 69% 34%, hsla(20, 100%, 55%, 1) 0px, transparent 50%);
+  --gradient-three: radial-gradient(at 8% 6%, hsla(30, 100%, 65%, 1) 0px, transparent 50%);
+  --gradient-four: radial-gradient(at 41% 38%, hsla(22, 100%, 50%, 1) 0px, transparent 50%);
+  --gradient-five: radial-gradient(at 86% 85%, hsla(28, 100%, 62%, 1) 0px, transparent 50%);
+  --gradient-six: radial-gradient(at 82% 18%, hsla(25, 100%, 58%, 1) 0px, transparent 50%);
+  --gradient-seven: radial-gradient(at 51% 4%, hsla(24, 100%, 53%, 1) 0px, transparent 50%);
+  --gradient-base: linear-gradient(hsla(25, 100%, 50%, 1) 0 100%);
+  
+  /* Force outer glow to orange */
+  --glow-color: hsl(25deg 100% 50% / 100%);
+  --glow-color-60: hsl(25deg 100% 50% / 60%);
+  --glow-color-50: hsl(25deg 100% 50% / 50%);
+  --glow-color-40: hsl(25deg 100% 50% / 40%);
+  --glow-color-30: hsl(25deg 100% 50% / 30%);
+  --glow-color-20: hsl(25deg 100% 50% / 20%);
+  --glow-color-10: hsl(25deg 100% 50% / 10%);
+
+  position: relative;
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  transform: translate3d(0, 0, 0.01px);
+  display: grid;
+  border: 1px solid rgb(255 255 255 / 15%);
+  background: var(--card-bg, #060010);
+  overflow: visible;
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 1px 2px,
+    rgba(0, 0, 0, 0.1) 0px 2px 4px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px,
+    rgba(0, 0, 0, 0.1) 0px 8px 16px,
+    rgba(0, 0, 0, 0.1) 0px 16px 32px,
+    rgba(0, 0, 0, 0.1) 0px 32px 64px;
+}
+
+.border-glow-card::before,
+.border-glow-card::after,
+.border-glow-card > .edge-light {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 0.25s ease-out;
+  z-index: -1;
+}
+
+.border-glow-card:not(:hover):not(.sweep-active)::before,
+.border-glow-card:not(:hover):not(.sweep-active)::after,
+.border-glow-card:not(:hover):not(.sweep-active) > .edge-light {
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+
+/* colored mesh-gradient border */
+.border-glow-card::before {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-bg, #060010) 0 100%) padding-box,
+    linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box,
+    var(--gradient-one, radial-gradient(at 80% 55%, hsla(268, 100%, 76%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-two, radial-gradient(at 69% 34%, hsla(349, 100%, 74%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-three, radial-gradient(at 8% 6%, hsla(136, 100%, 78%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-four, radial-gradient(at 41% 38%, hsla(192, 100%, 64%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-five, radial-gradient(at 86% 85%, hsla(186, 100%, 74%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-six, radial-gradient(at 82% 18%, hsla(52, 100%, 65%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-seven, radial-gradient(at 51% 4%, hsla(12, 100%, 72%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-base, linear-gradient(#c299ff 0 100%)) border-box;
+
+  opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black calc(var(--cone-spread) * 1%),
+      transparent calc((var(--cone-spread) + 15) * 1%),
+      transparent calc((100 - var(--cone-spread) - 15) * 1%),
+      black calc((100 - var(--cone-spread)) * 1%)
+    );
+}
+
+/* colored mesh-gradient background fill near edges */
+.border-glow-card::after {
+  border: 1px solid transparent;
+  background:
+    var(--gradient-one, radial-gradient(at 80% 55%, hsla(268, 100%, 76%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-two, radial-gradient(at 69% 34%, hsla(349, 100%, 74%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-three, radial-gradient(at 8% 6%, hsla(136, 100%, 78%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-four, radial-gradient(at 41% 38%, hsla(192, 100%, 64%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-five, radial-gradient(at 86% 85%, hsla(186, 100%, 74%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-six, radial-gradient(at 82% 18%, hsla(52, 100%, 65%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-seven, radial-gradient(at 51% 4%, hsla(12, 100%, 72%, 1) 0px, transparent 50%)) padding-box,
+    var(--gradient-base, linear-gradient(#c299ff 0 100%)) padding-box;
+
+  mask-image:
+    linear-gradient(to bottom, black, black),
+    radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
+    radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%),
+    conic-gradient(from var(--cursor-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%);
+
+  mask-composite: subtract, add, add, add, add, add;
+  opacity: calc(var(--fill-opacity, 0.5) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mix-blend-mode: soft-light;
+}
+
+/* outer glow layer */
+.border-glow-card > .edge-light {
+  inset: calc(var(--glow-padding) * -1);
+  pointer-events: none;
+  z-index: 1;
+
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%
+    );
+
+  opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  mix-blend-mode: plus-lighter;
+}
+
+.border-glow-card > .edge-light::before {
+  content: "";
+  position: absolute;
+  inset: var(--glow-padding);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-color, hsl(40deg 80% 80% / 100%)),
+    inset 0 0 1px 0 var(--glow-color-60, hsl(40deg 80% 80% / 60%)),
+    inset 0 0 3px 0 var(--glow-color-50, hsl(40deg 80% 80% / 50%)),
+    inset 0 0 6px 0 var(--glow-color-40, hsl(40deg 80% 80% / 40%)),
+    inset 0 0 15px 0 var(--glow-color-30, hsl(40deg 80% 80% / 30%)),
+    inset 0 0 25px 2px var(--glow-color-20, hsl(40deg 80% 80% / 20%)),
+    inset 0 0 50px 2px var(--glow-color-10, hsl(40deg 80% 80% / 10%)),
+    0 0 1px 0 var(--glow-color-60, hsl(40deg 80% 80% / 60%)),
+    0 0 3px 0 var(--glow-color-50, hsl(40deg 80% 80% / 50%)),
+    0 0 6px 0 var(--glow-color-40, hsl(40deg 80% 80% / 40%)),
+    0 0 15px 0 var(--glow-color-30, hsl(40deg 80% 80% / 30%)),
+    0 0 25px 2px var(--glow-color-20, hsl(40deg 80% 80% / 20%)),
+    0 0 50px 2px var(--glow-color-10, hsl(40deg 80% 80% / 10%));
+}
+
+.border-glow-inner {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: auto;
+  z-index: 1;
+  padding: 32px;
+  height: 100%;
+}
+
+/* Scroll Reveal CSS */
+.reveal-on-scroll {
+    opacity: 0;
+    translate: 0 40px;
+    transition: opacity 0.8s ease-out, translate 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal-on-scroll.is-revealed {
+    opacity: 1;
+    translate: 0 0;
 }

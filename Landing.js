@@ -1,4 +1,56 @@
+const GlowCard = ({ children }) => {
+    const cardRef = React.useRef(null);
+    
+    const handleMouseMove = (e) => {
+        if (!cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        let angle = Math.atan2(y - centerY, x - centerX) * (180 / Math.PI);
+        angle = (angle + 90 + 360) % 360;
+        
+        cardRef.current.style.setProperty('--cursor-angle', `${angle}deg`);
+        cardRef.current.style.setProperty('--edge-proximity', `100`);
+    };
+    
+    const handleMouseLeave = () => {
+        if (!cardRef.current) return;
+        cardRef.current.style.setProperty('--edge-proximity', `0`);
+    };
+    
+    return (
+        <div ref={cardRef} className="feature-card border-glow-card" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ '--card-bg': 'var(--panel-bg)' }}>
+            <div className="edge-light"></div>
+            <div className="border-glow-inner">
+                {children}
+            </div>
+        </div>
+    );
+};
+
 const LandingPage = ({ onStart, isDark, toggleTheme }) => {
+    React.useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        const elements = document.querySelectorAll('.reveal-on-scroll');
+        elements.forEach((el, index) => {
+            // Apply slight transition delay dynamically based on element order context
+            el.style.transitionDelay = `${(index % 4) * 0.1}s`;
+            observer.observe(el);
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div className="landing-wrapper">
             <nav className="landing-nav">
@@ -41,13 +93,13 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
             <section className="hero-section">
                 <div className="hero-content">
                     <div className="security-badge">SECURITY INTELLIGENCE</div>
-                    <h1 className="hero-title">
+                    <h1 className="hero-title reveal-on-scroll">
                         Guardian of Your <span className="text-primary">Legal</span> Privacy.
                     </h1>
-                    <p className="hero-description">
+                    <p className="hero-description reveal-on-scroll">
                         In an era of hidden clauses, TOS.AI architecturally deconstructs complex legal documents into human-readable insights. Stop agreeing blindly.
                     </p>
-                    <div className="hero-actions">
+                    <div className="hero-actions reveal-on-scroll">
                         <button type="button" className="primary-btn" onClick={onStart}>Start Your Analysis</button>
                         <button type="button" className="secondary-btn">View Sample Report</button>
                     </div>
@@ -69,13 +121,13 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
             </section>
 
             <section id="about" className="why-matters-section">
-                <div className="why-header">
+                <div className="why-header reveal-on-scroll">
                     <h2>Why TOS Analysis <span className="border-bottom-primary">Matters</span></h2>
                     <p className="why-quote">"The average user spends less than 6 seconds reading terms that govern their entire digital identity."</p>
                 </div>
 
                 <div className="cards-grid">
-                    <div className="feature-card">
+                    <div className="reveal-on-scroll"><GlowCard>
                         <div className="card-icon text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-gavel">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -89,8 +141,8 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
                         <h3>Unfair Terms</h3>
                         <p>We detect hidden clauses that strip you of your right to class-action lawsuits or force unfavorable arbitration locations.</p>
                         <div className="card-tag">RISK LEVEL: HIGH</div>
-                    </div>
-                    <div className="feature-card">
+                    </GlowCard></div>
+                    <div className="reveal-on-scroll"><GlowCard>
                         <div className="card-icon text-primary">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
@@ -102,8 +154,8 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
                         <h3>Privacy Risks</h3>
                         <p>Detailed tracking of how your data is harvested, shared with third-party brokers, and used for algorithmic profiling.</p>
                         <div className="card-tag">DATA PROTECTION</div>
-                    </div>
-                    <div className="feature-card">
+                    </GlowCard></div>
+                    <div className="reveal-on-scroll"><GlowCard>
                         <div className="card-icon text-primary">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="12" y1="4" x2="12" y2="16" />
@@ -113,32 +165,32 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
                         <h3>Liability Shifts</h3>
                         <p>Identification of "hold harmless" agreements where the company deflects responsibility for security breaches or data loss.</p>
                         <div className="card-tag">LEGAL SHARE</div>
-                    </div>
+                    </GlowCard></div>
                 </div>
             </section>
 
             <section id="how-it-works" className="steps-section">
-                <div className="steps-content">
+                <div className="steps-content reveal-on-scroll">
                     <h2>A Seamless Path to Legal Clarity.</h2>
                     <p>Designed for the modern professional who values time and transparency. No law degree required.</p>
                     <div className="abstract-graphic"></div>
                 </div>
                 <div className="steps-list">
-                    <div className="step-item">
+                    <div className="step-item reveal-on-scroll">
                         <div className="step-number">01</div>
                         <div className="step-text">
                             <h3>Paste the Text</h3>
                             <p>Simply copy the entire Terms of Service or Privacy Policy text and paste it into our secure, encrypted analyzer portal.</p>
                         </div>
                     </div>
-                    <div className="step-item">
+                    <div className="step-item reveal-on-scroll">
                         <div className="step-number">02</div>
                         <div className="step-text">
                             <h3>AI Analysis</h3>
                             <p>Our specialized legal models scan for over 460 unique risk indicators, cross-referencing against consumer protection laws.</p>
                         </div>
                     </div>
-                    <div className="step-item">
+                    <div className="step-item reveal-on-scroll">
                         <div className="step-number">03</div>
                         <div className="step-text">
                             <h3>Understand Results</h3>
@@ -149,7 +201,7 @@ const LandingPage = ({ onStart, isDark, toggleTheme }) => {
             </section>
 
             <section className="cta-section">
-                <div className="cta-box">
+                <div className="cta-box reveal-on-scroll">
                     <h2>Ready to secure your digital rights?</h2>
                     <p>Join over 50,000 users who have exposed hidden clauses using TOS.AI.</p>
                     <button type="button" className="primary-btn big-btn" onClick={onStart}>Analyze Now</button>

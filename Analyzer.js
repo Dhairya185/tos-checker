@@ -1,7 +1,22 @@
 const { useState } = React;
 
+const API_BASE_URL = (() => {
+    const origin = window.location.origin;
+    const hostname = window.location.hostname;
+    // If running on local dev servers (Live Server 5500, Vite 3000, etc.) or file:/// protocol
+    if (!hostname || hostname === "localhost" || hostname === "127.0.0.1") {
+        // If frontend is served directly by the backend itself (port 8000)
+        if (window.location.port === "8000") {
+            return origin;
+        }
+        // Otherwise, target the local backend port 8000
+        return "http://127.0.0.1:8000";
+    }
+    // When deployed (e.g. Hugging Face Spaces), use the same origin
+    return origin;
+})();
+
 function TrustWheel({ score }) {
-    // Gradient interpolator for red (0) -> yellow (50) -> green (100)
     const getGradientColor = (s) => {
         if (s <= 50) {
             const pct = s / 50;
@@ -27,10 +42,9 @@ function TrustWheel({ score }) {
 
     return (
         <div className="verdict-container">
-            <h4 className="verdict-subtitle">PROTOCOL VERDICT</h4>
+            <h4 className="verdict-subtitle" style={{ fontWeight: 'normal' }}>PROTOCOL VERDICT</h4>
             <div className="wheel-wrapper">
                 <svg viewBox="0 0 36 36" className="circular-chart">
-                    {/* Inner dark circle to create depth */}
                     <circle cx="18" cy="18" r="14" fill="#1c1c1c" />
                     
                     <path className="circle-bg"
@@ -48,34 +62,34 @@ function TrustWheel({ score }) {
                     />
                 </svg>
                 <div className="wheel-score">
-                    <span className="score-val">{score}</span>
-                    <span className="score-text">SCORE</span>
+                    <span className="score-val" style={{ fontWeight: 'normal' }}>{score}</span>
+                    <span className="score-text" style={{ fontWeight: 'normal' }}>SCORE</span>
                 </div>
             </div>
             
-            <div className="verdict-badge" style={{ borderColor: color, color: color, background: bgPulse }}>
+            <div className="verdict-badge" style={{ borderColor: color, color: color, background: bgPulse, fontWeight: 'normal' }}>
                 {verdict}
             </div>
-            <p className="verdict-desc">
+            <p className="verdict-desc" style={{ fontWeight: 'normal' }}>
                 Proceed with awareness. This service contains structural disadvantages for the user that are standard but restrictive.
             </p>
 
             <div className="mini-stats">
                 <div className="stat-row">
-                    <span>PRIVACY</span>
+                    <span style={{ fontWeight: 'normal' }}>PRIVACY</span>
                     <div className="bar-bg"><div className="bar-fill" style={{width: '70%', background: '#FF6B00'}}></div></div>
                 </div>
                 <div className="stat-row">
-                    <span>LIABILITY</span>
+                    <span style={{ fontWeight: 'normal' }}>LIABILITY</span>
                     <div className="bar-bg"><div className="bar-fill" style={{width: '40%', background: '#ef4444'}}></div></div>
                 </div>
                 <div className="stat-row">
-                    <span>CONTROL</span>
+                    <span style={{ fontWeight: 'normal' }}>CONTROL</span>
                     <div className="bar-bg"><div className="bar-fill" style={{width: '60%', background: '#049EFF'}}></div></div>
                 </div>
             </div>
 
-            <button className="download-btn">Download Full Report (PDF)</button>
+            <button className="download-btn" style={{ fontWeight: 'normal' }}>Download Full Report (PDF)</button>
         </div>
     );
 }
@@ -118,6 +132,7 @@ function AnalyzerApp() {
     const [text, setText] = useState("");
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
+    const [selectedModel, setSelectedModel] = useState("tos-custom-pro");
 
     const analyze = async () => {
         if (text.length < 10) {
@@ -126,27 +141,25 @@ function AnalyzerApp() {
         }
         setLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:8000/analyze", {
+            const response = await fetch(`${API_BASE_URL}/analyze`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ text: text, model_choice: selectedModel })
             });
             const data = await response.json();
             if (response.ok) {
-                // Safety assignment to prevent React rendering crashes
                 if (!data.summary) data.summary = "No summary provided.";
                 if (!data.gotchas) data.gotchas = [];
                 if (typeof data.trust_score !== 'number') data.trust_score = 50;
                 setResult(data);
                 
-                // Scroll to top when results appear
                 setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
             } else {
                 alert("Server Error: " + JSON.stringify(data.detail || data));
             }
         } catch (error) {
-            console.error("Fetch error:", error);
-            alert("Could not connect to the Backend. Please ensure the Python server (tos_checker.py) is running.");
+            console.error(error);
+            alert("Could not connect to the Backend. Please ensure the Python server is running.");
         }
         setLoading(false);
     };
@@ -154,11 +167,11 @@ function AnalyzerApp() {
     return (
         <div className="landing-wrapper">
             <nav className="landing-nav">
-                <div className="landing-logo">TOS.AI</div>
+                <div className="landing-logo" style={{ fontWeight: 'normal' }}>TOS.AI</div>
                 <div className="landing-links">
-                    <a href="#" onClick={(e) => { e.preventDefault(); goHome(); }}>Home</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); goAbout(); }}>How It Works</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); goContact(); }}>Contact</a>
+                    <a href="#" style={{ fontWeight: 'normal' }} onClick={(e) => { e.preventDefault(); goHome(); }}>Home</a>
+                    <a href="#" style={{ fontWeight: 'normal' }} onClick={(e) => { e.preventDefault(); goAbout(); }}>How It Works</a>
+                    <a href="#" style={{ fontWeight: 'normal' }} onClick={(e) => { e.preventDefault(); goContact(); }}>Contact</a>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button type="button" className="theme-toggle-btn" onClick={toggleTheme}>
@@ -193,14 +206,30 @@ function AnalyzerApp() {
 
             {!result ? (
                 <div className="input-section">
-                    <h2 style={{ marginBottom: '20px' }}>Document Analysis</h2>
+                    <h2 style={{ marginBottom: '20px', fontWeight: 'normal' }}>Document Analysis</h2>
+                    
+                    <div className="model-select-container">
+                        <label className="model-select-label" style={{ fontWeight: 'normal' }}>Analysis Model Engine</label>
+                        <select 
+                            className="model-select-dropdown"
+                            value={selectedModel}
+                            onChange={(e) => setSelectedModel(e.target.value)}
+                            style={{ fontWeight: 'normal' }}
+                        >
+                            <option value="tos-custom-pro">Free Tier (Local ML/Heuristic Classifier)</option>
+                            <option value="gemini-2.5-flash">Pro Tier (Gemini 2.5 Flash API)</option>
+                            <option value="gemini-2.5-pro">Pro Tier (Gemini 2.5 Pro API)</option>
+                        </select>
+                    </div>
+
                     <textarea 
                         className="dark-textarea"
                         placeholder="Paste the Terms of Service or Privacy Policy here to detect hidden traps..." 
                         value={text}
                         onChange={(e) => setText(e.target.value)}
+                        style={{ fontWeight: 'normal' }}
                     />
-                    <button type="button" className="analyze-btn" onClick={analyze} disabled={loading}>
+                    <button type="button" className="analyze-btn" onClick={analyze} disabled={loading} style={{ fontWeight: 'normal' }}>
                         {loading ? "Analyzing Document..." : "Run AI Analysis"}
                     </button>
                 </div>
@@ -208,45 +237,54 @@ function AnalyzerApp() {
                 <div className="dashboard-grid">
                     <div className="main-panel">
                         <div className="panel-header">
-                            <span className="accent-label">ANALYSIS RESULTS</span>
-                            <h1>Document Report</h1>
+                            <span className="accent-label" style={{ fontWeight: 'normal' }}>ANALYSIS RESULTS ({selectedModel === "tos-custom-pro" ? "FREE TIER" : "PRO TIER"})</span>
+                            <h1 style={{ fontWeight: 'normal' }}>Document Report</h1>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 'normal' }}>
+                                Analyzed using: <span>{
+                                    selectedModel === "tos-custom-pro" 
+                                    ? "Local ML Classifier (Offline)" 
+                                    : selectedModel === "gemini-2.5-pro"
+                                    ? "Gemini 2.5 Pro (Deep Risk Audit)"
+                                    : "Gemini 2.5 Flash (Fast & Lightweight)"
+                                }</span>
+                            </p>
                         </div>
 
                         <div className="summary-box">
-                            <h3>Executive Summary</h3>
-                            <p dangerouslySetInnerHTML={{ __html: String(result.summary || '').replace(/(arbitration|privacy|data|third-party|liability)/gi, '<span class="highlight-orange">$&</span>') }}></p>
+                            <h3 style={{ fontWeight: 'normal' }}>Executive Summary</h3>
+                            <p style={{ fontWeight: 'normal' }} dangerouslySetInnerHTML={{ __html: String(result.summary || '') }}></p>
                             
                             <div className="summary-footer">
                                 <div>
-                                    <span className="meta-label">READING TIME</span>
-                                    <span className="meta-val">45 Minutes saved</span>
+                                    <span className="meta-label" style={{ fontWeight: 'normal' }}>READING TIME</span>
+                                    <span className="meta-val" style={{ fontWeight: 'normal' }}>45 Minutes saved</span>
                                 </div>
                                 <div>
-                                    <span className="meta-label">COMPLEXITY</span>
-                                    <span className="meta-val">Post-Graduate Level</span>
+                                    <span className="meta-label" style={{ fontWeight: 'normal' }}>COMPLEXITY</span>
+                                    <span className="meta-val" style={{ fontWeight: 'normal' }}>Post-Graduate Level</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="gotchas-section">
                             <div className="gotchas-header">
-                                <h3>Critical Gotchas</h3>
-                                <span className="risk-badge">{result.gotchas.length} HIGH RISK FOUND</span>
+                                <h3 style={{ fontWeight: 'normal' }}>Critical Gotchas</h3>
+                                <span className="risk-badge" style={{ fontWeight: 'normal' }}>{result.gotchas.length} HIGH RISK FOUND</span>
                             </div>
 
                             <div className="gotchas-list">
                                 {result.gotchas.length === 0 ? (
-                                    <p style={{color: '#10b981'}}>No major red flags detected!</p>
+                                    <p style={{color: '#10b981', fontWeight: 'normal'}}>No major red flags detected!</p>
                                 ) : (
                                     result.gotchas.map((item, index) => (
                                         <div key={index} className="gotcha-card">
                                             <div className="gotcha-icon">⚠️</div>
                                             <div className="gotcha-content">
-                                                <h4>Detected Clause</h4>
-                                                <p>{item}</p>
+                                                <h4 style={{ fontWeight: 'normal' }}>Detected Clause</h4>
+                                                <p style={{ fontWeight: 'normal' }}>{item}</p>
                                                 <div className="tags">
-                                                    <span className="tag">LEGAL</span>
-                                                    <span className="tag">ATTENTION</span>
+                                                    <span className="tag" style={{ fontWeight: 'normal' }}>LEGAL</span>
+                                                    <span className="tag" style={{ fontWeight: 'normal' }}>ATTENTION</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -262,8 +300,8 @@ function AnalyzerApp() {
                         <div className="pro-tip">
                             <div className="tip-icon">📍</div>
                             <div>
-                                <h4>Pro-Tip</h4>
-                                <p>You can opt-out of the arbitration clause by sending a written notice to their legal headquarters within 30 days of registration.</p>
+                                <h4 style={{ fontWeight: 'normal' }}>Pro-Tip</h4>
+                                <p style={{ fontWeight: 'normal' }}>You can opt-out of the arbitration clause by sending a written notice to their legal headquarters within 30 days of registration.</p>
                             </div>
                         </div>
                     </div>

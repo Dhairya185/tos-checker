@@ -39,12 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve the static HTML frontend
-@app.get("/")
-async def serve_frontend():
-    return FileResponse("index.html")
 
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 local_model = None
 transformer_model = None
@@ -88,17 +83,17 @@ def calculate_trust_score(gotchas: typing.List[str]) -> int:
     for gotcha in gotchas:
         g_lower = gotcha.lower()
         if "arbitration" in g_lower or "arbitrate" in g_lower or "dispute resolution" in g_lower:
-            score -= 25
-        elif "class action" in g_lower or "representative action" in g_lower:
             score -= 15
+        elif "class action" in g_lower or "representative action" in g_lower:
+            score -= 10
         elif any(k in g_lower for k in ["sell", "sharing", "advertis", "marketing", "monetize"]):
-            score -= 20
+            score -= 15
         elif any(k in g_lower for k in ["license", "ownership", "intellectual property", "own your content", "perpetual"]):
-            score -= 20
+            score -= 10
         elif any(k in g_lower for k in ["renew", "recurring", "fee", "billing"]):
-            score -= 10
+            score -= 5
         elif any(k in g_lower for k in ["unilateral", "modify", "change", "discretion", "without notice"]):
-            score -= 10
+            score -= 5
         else:
             score -= 5
             
@@ -119,22 +114,29 @@ def chunk_text(text: str, max_length: int = 400) -> typing.List[str]:
 
 def extract_heuristics(text_lower: str) -> typing.List[str]:
     gotchas = []
-    if any(k in text_lower for k in ["arbitrate", "arbitration", "binding arbitration", "dispute resolution"]):
+    if any(k in text_lower for k in ["binding arbitration", "forced arbitration", "waive your right to a jury", "waiver of jury"]):
         gotchas.append("Forced Arbitration: Disputes must be settled via arbitration rather than a court of law.")
-    if any(k in text_lower for k in ["class action", "representative action", "class member"]):
+    if any(k in text_lower for k in ["class action waiver", "waive your right to participate in a class action", "representative action waiver"]):
         gotchas.append("Class Action Waiver: Users are prohibited from participating in group or class action lawsuits.")
-    if any(k in text_lower for k in ["sell your data", "share with advertisers", "targeted advertising", "third-party partners", "marketing partners", "monetize", "sell data"]):
+    if any(k in text_lower for k in ["sell your personal data", "share your personal data with third-party advertisers", "monetize your personal information"]):
         gotchas.append("Data Monetization: Company shares or sells user data to third-party advertising partners.")
-    if any(k in text_lower for k in ["royalty-free", "perpetual", "worldwide license", "transfer ownership", "sub-license"]):
+    if any(k in text_lower for k in ["perpetual, irrevocable", "transfer all ownership rights", "waive your moral rights"]):
         gotchas.append("IP Lock-in: Company demands a perpetual, worldwide, royalty-free license to distribute and edit user content.")
-    if any(k in text_lower for k in ["auto-renew", "automatically renew", "recurring charge", "automatic billing"]):
+    if any(k in text_lower for k in ["automatically renews unless cancelled", "recurring non-refundable", "auto-renewal terms"]):
         gotchas.append("Auto-Renewal Loop: Services auto-renew automatically and require manual cancellation to avoid billing.")
-    if any(k in text_lower for k in ["reserve the right to modify", "change these terms at any time", "at our sole discretion", "without prior notice"]):
+    if any(k in text_lower for k in ["change these terms at any time without notice", "sole and absolute discretion", "unilateral right to modify"]):
         gotchas.append("Unilateral Terms Changes: Terms of service can be amended at the company's sole discretion without advance notice.")
     return gotchas
 
 def analyze_local_ml(text: str) -> dict:
     gotchas_set = set()
+    
+    # 1. Always run heuristics as a baseline guarantee
+    baseline_gotchas = extract_heuristics(text.lower())
+    for g in baseline_gotchas:
+        gotchas_set.add(g)
+
+    # 2. Run ML models on chunks to find subtle unfair clauses missed by heuristics
     chunks = chunk_text(text)
     
     if transformer_model is not None and transformer_tokenizer is not None:
@@ -146,10 +148,7 @@ def analyze_local_ml(text: str) -> dict:
                 
                 if pred_class == 1:
                     chunk_gotchas = extract_heuristics(chunk.lower())
-                    if chunk_gotchas:
-                        for g in chunk_gotchas:
-                            gotchas_set.add(g)
-                    else:
+                    if not chunk_gotchas:
                         gotchas_set.add("Unfair Clause Detected: The Transformer model flagged a section as potentially restrictive.")
     elif local_model:
         for chunk in chunks:
@@ -157,13 +156,8 @@ def analyze_local_ml(text: str) -> dict:
             
             if prediction == 1:
                 chunk_gotchas = extract_heuristics(chunk.lower())
-                if chunk_gotchas:
-                    for g in chunk_gotchas:
-                        gotchas_set.add(g)
-                else:
+                if not chunk_gotchas:
                     gotchas_set.add("Unfair Clause Detected: The AI model flagged a section as potentially restrictive.")
-    else:
-        gotchas_set.update(extract_heuristics(text.lower()))
 
     gotchas = list(gotchas_set)
     score = calculate_trust_score(gotchas)
@@ -245,6 +239,13 @@ async def analyze_agreement(request: AgreementRequest):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Serve the static HTML frontend
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("index.html")
+
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("tos_checker:app", host="127.0.0.1", port=8000, reload=True)

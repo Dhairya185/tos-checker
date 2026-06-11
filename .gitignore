@@ -8,3 +8,15 @@ results/
 results_transformer/
 *.msi
 tmp_trainer/
+
+# Logs and debug files
+*.log
+log.txt
+
+# Model directories and weights
+fine_tuned_model/
+tos_model/
+*.safetensors
+
+# Temporary test scripts
+test_crash*.py

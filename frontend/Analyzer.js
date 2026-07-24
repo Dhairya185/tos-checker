@@ -1,20 +1,6 @@
 const { useState } = React;
 
-const API_BASE_URL = (() => {
-    const origin = window.location.origin;
-    const hostname = window.location.hostname;
-    // If running on local dev servers (Live Server 5500, Vite 3000, etc.) or file:/// protocol
-    if (!hostname || hostname === "localhost" || hostname === "127.0.0.1") {
-        // If frontend is served directly by the backend itself (port 8000)
-        if (window.location.port === "8000") {
-            return origin;
-        }
-        // Otherwise, target the local backend port 8000
-        return "http://127.0.0.1:8000";
-    }
-    // When deployed (e.g. Hugging Face Spaces), use the same origin
-    return origin;
-})();
+const API_BASE_URL = "https://dkairya-tos-ai.hf.space";
 
 function TrustWheel({ score }) {
     const getGradientColor = (s) => {
